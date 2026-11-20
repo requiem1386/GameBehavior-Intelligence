@@ -1,4 +1,5 @@
-﻿from django.urls import path
+﻿
+from django.urls import path
 
 from predictions.views import (
     dashboard_view,
@@ -8,6 +9,11 @@ from predictions.views import (
 )
 
 urlpatterns = [
+    path(
+        "",
+        dashboard_view,
+        name="dashboard",
+    ),
     path(
         "predict/",
         predict_rating_view,
@@ -23,9 +29,4 @@ urlpatterns = [
         compare_players_view,
         name="compare-players",
     ),
-    path(
-    "",
-    dashboard_view,
-    name="dashboard",
-),
 ]

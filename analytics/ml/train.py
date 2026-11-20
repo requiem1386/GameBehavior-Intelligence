@@ -1,8 +1,17 @@
 
 import os
+import django
 import joblib
 import numpy as np
 import pandas as pd
+
+# Initialize Django before importing application models.
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "config.settings",
+)
+
+django.setup()
 
 from sklearn.ensemble import (
     RandomForestRegressor,
@@ -152,6 +161,22 @@ def train_model():
     test_df = df[
         df["match_id"].isin(test_match_ids)
     ].copy()
+    # Validate chronological split boundaries.
+    if not (
+    train_df["match_date"].max()
+    < validation_df["match_date"].min()
+):
+      raise ValueError(
+        "Temporal leakage detected between Train and Validation."
+    )
+
+    if not (
+    validation_df["match_date"].max()
+    < test_df["match_date"].min()
+):
+      raise ValueError(
+        "Temporal leakage detected between Validation and Test."
+    )
 
     if train_df.empty or validation_df.empty or test_df.empty:
         raise ValueError(

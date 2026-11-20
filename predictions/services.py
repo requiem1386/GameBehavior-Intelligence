@@ -80,10 +80,10 @@ def build_player_history(player):
                     combat[field] += value
 
         advanced_key = (
-            str(stat.map.match.match_id),
-            int(stat.map.map_index),
-            str(player.username),
-        )
+    str(stat.map.match.match_id),
+    int(stat.map.map_index),
+    str(player.steam_id),
+)
 
         advanced_record = advanced_lookup.get(advanced_key, {})
 

@@ -5,17 +5,27 @@ from collections import Counter
 
 
 def to_records(value):
-    """Convert Parquet array/list values into a list of dictionaries."""
+    """Convert Parquet array/list values into a list of records."""
     if value is None:
         return []
 
     if isinstance(value, np.ndarray):
         return value.tolist()
 
-    if isinstance(value, list):
-        return value
+    if isinstance(value, (list, tuple)):
+        return list(value)
 
     return []
+
+
+def normalize_name(value):
+    """Normalize player names for map-local event matching."""
+    if value is None:
+        return None
+
+    value = str(value).strip()
+
+    return value.casefold() if value else None
 
 
 def extract_advanced_features(raw_df):
@@ -29,53 +39,90 @@ def extract_advanced_features(raw_df):
 
         players = to_records(map_row["players"])
         kills = to_records(map_row["kills"])
-        rounds = to_records(map_row["rounds"])
 
-        # Only use the "all" player records as the player list.
         all_players = [
-            p for p in players
-            if p.get("side") == "all"
+            player for player in players
+            if isinstance(player, dict)
+            and player.get("side") == "all"
         ]
+
+        # Build a map-local name-to-Steam-ID mapping.
+        name_to_steam_id = {}
+
+        for player in all_players:
+            name = player.get("name")
+            steam_id = player.get("steamid")
+
+            normalized_name = normalize_name(name)
+
+            if normalized_name is None or steam_id is None:
+                continue
+
+            steam_id = str(int(steam_id))
+
+            if (
+                normalized_name in name_to_steam_id
+                and name_to_steam_id[normalized_name] != steam_id
+            ):
+                raise ValueError(
+                    f"Conflicting Steam IDs for player {name!r} "
+                    f"in match {match_id}, map {map_index}"
+                )
+
+            name_to_steam_id[normalized_name] = steam_id
 
         for player in all_players:
 
             name = player.get("name")
+            steam_id = player.get("steamid")
 
-            if not name:
+            normalized_name = normalize_name(name)
+
+            if normalized_name is None or steam_id is None:
                 continue
 
+            steam_id = str(int(steam_id))
+
             player_kills = [
-                k for k in kills
-                if k.get("attacker_name") == name
+                kill for kill in kills
+                if normalize_name(kill.get("attacker_name"))
+                == normalized_name
             ]
 
             player_deaths = [
-                k for k in kills
-                if k.get("victim_name") == name
+                kill for kill in kills
+                if normalize_name(kill.get("victim_name"))
+                == normalized_name
             ]
 
             player_assists = [
-                k for k in kills
-                if k.get("assister_name") == name
+                kill for kill in kills
+                if normalize_name(kill.get("assister_name"))
+                == normalized_name
             ]
 
-            # Kills per round
             kill_rounds = Counter(
-                k.get("round_num")
-                for k in player_kills
-                if k.get("round_num") is not None
+                kill.get("round_num")
+                for kill in player_kills
+                if kill.get("round_num") is not None
             )
 
-            # Multi-kill rounds
-            double_kills = sum(v == 2 for v in kill_rounds.values())
-            triple_kills = sum(v == 3 for v in kill_rounds.values())
-            four_kills = sum(v == 4 for v in kill_rounds.values())
-            aces = sum(v >= 5 for v in kill_rounds.values())
+            double_kills = sum(
+                count == 2 for count in kill_rounds.values()
+            )
+            triple_kills = sum(
+                count == 3 for count in kill_rounds.values()
+            )
+            four_kills = sum(
+                count == 4 for count in kill_rounds.values()
+            )
+            aces = sum(
+                count >= 5 for count in kill_rounds.values()
+            )
 
             # Opening duels
             opening_kills = 0
             opening_deaths = 0
-
             round_events = {}
 
             for kill in kills:
@@ -90,7 +137,7 @@ def extract_advanced_features(raw_df):
 
                 events = sorted(
                     events,
-                    key=lambda x: x.get("tick") or 0
+                    key=lambda event: event.get("tick") or 0
                 )
 
                 if not events:
@@ -98,65 +145,68 @@ def extract_advanced_features(raw_df):
 
                 first_kill = events[0]
 
-                if first_kill.get("attacker_name") == name:
+                if (
+                    normalize_name(first_kill.get("attacker_name"))
+                    == normalized_name
+                ):
                     opening_kills += 1
 
-                if first_kill.get("victim_name") == name:
+                if (
+                    normalize_name(first_kill.get("victim_name"))
+                    == normalized_name
+                ):
                     opening_deaths += 1
 
-            # Weapon statistics
             weapon_counts = Counter(
-                str(k.get("weapon", "")).lower()
-                for k in player_kills
+                str(kill.get("weapon", "")).lower()
+                for kill in player_kills
             )
 
             headshots = sum(
-                bool(k.get("headshot"))
-                for k in player_kills
+                bool(kill.get("headshot"))
+                for kill in player_kills
             )
 
             kill_count = len(player_kills)
             death_count = len(player_deaths)
 
-            # Special kill events
             smoke_kills = sum(
-                bool(k.get("thrusmoke"))
-                for k in player_kills
+                bool(kill.get("thrusmoke"))
+                for kill in player_kills
             )
 
             noscope_kills = sum(
-                bool(k.get("noscope"))
-                for k in player_kills
+                bool(kill.get("noscope"))
+                for kill in player_kills
             )
 
             blind_kills = sum(
-                bool(k.get("attackerblind"))
-                for k in player_kills
+                bool(kill.get("attackerblind"))
+                for kill in player_kills
             )
 
             wallbang_kills = sum(
-                (k.get("penetrated") or 0) > 0
-                for k in player_kills
+                (kill.get("penetrated") or 0) > 0
+                for kill in player_kills
             )
 
             distances = [
-                float(k["distance"])
-                for k in player_kills
-                if k.get("distance") is not None
+                float(kill["distance"])
+                for kill in player_kills
+                if kill.get("distance") is not None
             ]
 
             damage_values = [
-                float(k["dmg_health"])
-                for k in player_kills
-                if k.get("dmg_health") is not None
+                float(kill["dmg_health"])
+                for kill in player_kills
+                if kill.get("dmg_health") is not None
             ]
 
-            # Weapon categories
             awp_kills = weapon_counts.get("awp", 0)
 
             rifle_kills = sum(
-                weapon_counts.get(w, 0)
-                for w in [
+                weapon_counts.get(weapon, 0)
+                for weapon in [
                     "ak47",
                     "m4a1",
                     "m4a1_silencer",
@@ -168,8 +218,8 @@ def extract_advanced_features(raw_df):
             )
 
             pistol_kills = sum(
-                weapon_counts.get(w, 0)
-                for w in [
+                weapon_counts.get(weapon, 0)
+                for weapon in [
                     "glock",
                     "usp_silencer",
                     "hkp2000",
@@ -188,6 +238,7 @@ def extract_advanced_features(raw_df):
                 "match_id": match_id,
                 "map_index": map_index,
                 "map_name": map_name,
+                "steam_id": steam_id,
                 "player_name": name,
 
                 "advanced_kills": kill_count,
@@ -226,12 +277,11 @@ def extract_advanced_features(raw_df):
                 ),
 
                 "advanced_damage_per_kill": (
-                    sum(damage_values) / kill_count
-                    if kill_count > 0 else 0
+                    sum(damage_values) / len(damage_values)
+                    if damage_values else 0
                 ),
 
                 "advanced_total_kill_damage": sum(damage_values),
-
             })
 
     return pd.DataFrame(results)

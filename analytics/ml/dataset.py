@@ -129,10 +129,10 @@ def load_advanced_features():
     for row in advanced_df.to_dict("records"):
 
         key = (
-            str(row["match_id"]),
-            int(row["map_index"]),
-            str(row["player_name"]),
-        )
+    str(row["match_id"]),
+    int(row["map_index"]),
+    str(row["steam_id"]),
+)
 
         advanced_lookup[key] = row
 
@@ -274,7 +274,7 @@ def build_training_dataset(min_history=3):
             advanced_key = (
                 str(stat.map.match.match_id),
                 int(stat.map.map_index),
-                str(stat.player.username),
+                str(stat.player.steam_id),
             )
 
             advanced_record = advanced_lookup.get(
