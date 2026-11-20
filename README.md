@@ -36,59 +36,56 @@ The project combines structured match data, advanced feature engineering, tempor
 
 ```text
 GameBehaviorIntelligence/
-â”‚
-â”œâ”€â”€ analytics/
-â”‚   â”œâ”€â”€ ml/
-â”‚   â”‚   â”œâ”€â”€ advanced_features.py
-â”‚   â”‚   â”œâ”€â”€ dataset.py
-â”‚   â”‚   â”œâ”€â”€ train.py
-â”‚   â”‚
-â”‚   â”œâ”€â”€ tests.py
-â”‚   â””â”€â”€ ...
-â”‚
-â”œâ”€â”€ config/
-â”‚   â”œâ”€â”€ settings.py
-â”‚   â”œâ”€â”€ urls.py
-â”‚   â””â”€â”€ ...
-â”‚
-â”œâ”€â”€ data_pipeline/
-â”‚   â””â”€â”€ demo_parser.py
-â”‚
-â”œâ”€â”€ matches/
-â”‚   â”œâ”€â”€ management/
-â”‚   â”‚   â””â”€â”€ commands/
-â”‚   â”‚       â”œâ”€â”€ import_cs2_data.py
-â”‚   â”‚       â””â”€â”€ inspect_cs2_dataset.py
-â”‚   â”œâ”€â”€ models.py
-â”‚   â””â”€â”€ ...
-â”‚
-â”œâ”€â”€ players/
-â”‚   â”œâ”€â”€ management/
-â”‚   â”‚   â””â”€â”€ commands/
-â”‚   â”‚       â””â”€â”€ sync_steam_profiles.py
-â”‚   â”œâ”€â”€ services/
-â”‚   â”‚   â””â”€â”€ steam.py
-â”‚   â”œâ”€â”€ models.py
-â”‚   â””â”€â”€ ...
-â”‚
-â”œâ”€â”€ predictions/
-â”‚   â”œâ”€â”€ services.py
-â”‚   â”œâ”€â”€ views.py
-â”‚   â”œâ”€â”€ urls.py
-â”‚   â”œâ”€â”€ templates/
-â”‚   â””â”€â”€ static/
-â”‚
-â”œâ”€â”€ scripts/
-â”‚   â””â”€â”€ rebuild_advanced_features.py
-â”‚
-â”œâ”€â”€ dataset/
-â”‚   â”œâ”€â”€ raw/
-â”‚   â”‚   â””â”€â”€ data/
-â”‚   â””â”€â”€ processed/
-â”‚
-â”œâ”€â”€ manage.py
-â””â”€â”€ requirements.txt
-```
+|
+|-- analytics/
+|   |-- ml/
+|   |   |-- advanced_features.py
+|   |   |-- dataset.py
+|   |   `-- train.py
+|   |-- tests.py
+|   `-- ...
+|
+|-- config/
+|   |-- settings.py
+|   |-- urls.py
+|   `-- ...
+|
+|-- data_pipeline/
+|   `-- demo_parser.py
+|
+|-- matches/
+|   |-- management/
+|   |   `-- commands/
+|   |       |-- import_cs2_data.py
+|   |       `-- inspect_cs2_dataset.py
+|   |-- models.py
+|   `-- ...
+|
+|-- players/
+|   |-- management/
+|   |   `-- commands/
+|   |       `-- sync_steam_profiles.py
+|   |-- services/
+|   |   `-- steam.py
+|   |-- models.py
+|   `-- ...
+|
+|-- predictions/
+|   |-- services.py
+|   |-- views.py
+|   |-- urls.py
+|   |-- templates/
+|   `-- static/
+|
+|-- scripts/
+|   `-- rebuild_advanced_features.py
+|
+|-- dataset/
+|   |-- raw/
+|   `-- processed/
+|
+|-- manage.py
+`-- requirements.txt
 
 ## Dataset
 
