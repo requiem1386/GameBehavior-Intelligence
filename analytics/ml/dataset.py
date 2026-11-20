@@ -1,9 +1,9 @@
-
-import os
+﻿import os
 import pandas as pd
 
 from collections import defaultdict
 from matches.models import PlayerMapStats
+from analytics.ml.team_features import load_team_rosters
 
 
 ADVANCED_FEATURES = [
@@ -38,6 +38,15 @@ MAP_FEATURES = [
     "prior_map_avg_kills",
     "prior_map_avg_impact",
     "prior_map_matches_count",
+]
+
+
+TEAM_FEATURES = [
+    "prior_team_avg_rating",
+    "prior_team_avg_adr",
+    "prior_team_avg_impact",
+    "prior_teammate_experience",
+    "prior_roster_continuity",
 ]
 
 
@@ -129,19 +138,44 @@ def load_advanced_features():
     for row in advanced_df.to_dict("records"):
 
         key = (
-    str(row["match_id"]),
-    int(row["map_index"]),
-    str(row["steam_id"]),
-)
+            str(row["match_id"]),
+            int(row["map_index"]),
+            str(row["steam_id"]),
+        )
 
         advanced_lookup[key] = row
 
     return advanced_lookup
 
 
+def team_historical_average(roster, player_history, field):
+
+    values = []
+
+    for teammate_id in roster:
+
+        history = player_history[teammate_id]
+
+        if not history:
+            continue
+
+        recent_history = history[-5:]
+
+        values.append(
+            average(recent_history, field)
+        )
+
+    return (
+        sum(values) / len(values)
+        if values else 0.0
+    )
+
+
 def build_training_dataset(min_history=3):
 
     advanced_lookup = load_advanced_features()
+
+    team_rosters = load_team_rosters()
 
     # Collect CT and T combat statistics.
     side_stats = (
@@ -222,6 +256,9 @@ def build_training_dataset(min_history=3):
     # Separate history for each player and map.
     player_map_history = defaultdict(list)
 
+    # Number of previous maps played together by each pair.
+    teammate_history = defaultdict(int)
+
     samples = []
 
     # Process matches chronologically.
@@ -236,6 +273,9 @@ def build_training_dataset(min_history=3):
         current_match_updates = defaultdict(list)
 
         current_match_map_updates = defaultdict(list)
+
+        # Store each map roster only once.
+        current_match_roster_updates = {}
 
         # Generate samples before updating histories.
         for stat in match_stats:
@@ -301,6 +341,74 @@ def build_training_dataset(min_history=3):
             current_match_map_updates[
                 (player_id, map_name)
             ].append(current)
+
+            # Resolve the current player's team roster.
+            roster_key = (
+                str(stat.map.match.match_id),
+                int(stat.map.map_index),
+            )
+
+            map_rosters = team_rosters.get(
+                roster_key,
+                []
+            )
+
+            current_match_roster_updates[
+                roster_key
+            ] = map_rosters
+
+            player_roster = next(
+                (
+                    roster
+                    for roster in map_rosters
+                    if player_id in roster
+                ),
+                set()
+            )
+
+            teammates = (
+                player_roster - {player_id}
+            )
+
+            # Historical team strength.
+            team_avg_rating = team_historical_average(
+                player_roster,
+                player_history,
+                "rating",
+            )
+
+            team_avg_adr = team_historical_average(
+                player_roster,
+                player_history,
+                "adr",
+            )
+
+            team_avg_impact = team_historical_average(
+                player_roster,
+                player_history,
+                "impact",
+            )
+
+            # Previous shared maps with current teammates.
+            teammate_counts = [
+                teammate_history[
+                    tuple(sorted((player_id, teammate_id)))
+                ]
+                for teammate_id in teammates
+            ]
+
+            teammate_experience = (
+                sum(teammate_counts) / len(teammate_counts)
+                if teammate_counts else 0.0
+            )
+
+            roster_continuity = (
+                sum(
+                    count > 0
+                    for count in teammate_counts
+                ) / len(teammate_counts)
+                if teammate_counts else 0.0
+            )
 
             if len(history) < min_history or target is None:
                 continue
@@ -433,6 +541,17 @@ def build_training_dataset(min_history=3):
 
                 "prior_map_matches_count": len(map_history),
 
+                # Team historical features.
+                "prior_team_avg_rating": team_avg_rating,
+
+                "prior_team_avg_adr": team_avg_adr,
+
+                "prior_team_avg_impact": team_avg_impact,
+
+                "prior_teammate_experience": teammate_experience,
+
+                "prior_roster_continuity": roster_continuity,
+
                 "target_rating": target,
                 "match_date": match_date,
                 "match_id": match_id,
@@ -450,7 +569,7 @@ def build_training_dataset(min_history=3):
 
             samples.append(sample)
 
-        # Update histories only after the entire match series.
+        # Update player histories after the entire match series.
         for player_id, updates in current_match_updates.items():
 
             player_history[player_id].extend(updates)
@@ -458,6 +577,25 @@ def build_training_dataset(min_history=3):
         for key, updates in current_match_map_updates.items():
 
             player_map_history[key].extend(updates)
+
+        # Update teammate history after the entire series.
+        # Each map contributes exactly one shared-map count.
+        for map_rosters in current_match_roster_updates.values():
+
+            for roster in map_rosters:
+
+                roster_players = sorted(roster)
+
+                for index, player_id in enumerate(roster_players):
+
+                    for teammate_id in roster_players[index + 1:]:
+
+                        pair = (
+                            player_id,
+                            teammate_id,
+                        )
+
+                        teammate_history[pair] += 1
 
     df = pd.DataFrame(samples)
 

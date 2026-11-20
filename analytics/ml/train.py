@@ -24,6 +24,7 @@ from sklearn.metrics import (
     mean_squared_error,
     r2_score,
 )
+from sklearn.inspection import permutation_importance
 
 from analytics.ml.dataset import (
     build_training_dataset,
@@ -293,7 +294,51 @@ def train_model():
         )
 
     print("\nSelected model:", best_name)
+    # Analyze feature importance using validation data.
+    print("\n========== PERMUTATION FEATURE IMPORTANCE ==========")
 
+    selected_model = models[best_name]
+
+    importance_result = permutation_importance(
+        selected_model,
+        X_validation,
+        y_validation,
+        scoring="neg_mean_absolute_error",
+        n_repeats=10,
+        random_state=42,
+        n_jobs=-1,
+    )
+
+    importance_df = pd.DataFrame({
+        "feature": FEATURES,
+        "importance_mean": importance_result.importances_mean,
+        "importance_std": importance_result.importances_std,
+    }).sort_values(
+        "importance_mean",
+        ascending=False,
+    )
+
+    print("\nTop 15 important features:")
+
+    print(
+        importance_df.head(15).to_string(
+            index=False,
+            float_format=lambda value: f"{value:.6f}",
+        )
+    )
+
+    importance_path = os.path.join(
+        os.path.dirname(__file__),
+        "feature_importance.csv",
+    )
+
+    importance_df.to_csv(
+        importance_path,
+        index=False,
+    )
+
+    print("\nFeature importance saved to:")
+    print(importance_path)
     # Refit the selected model on Train + Validation.
     train_validation_df = pd.concat(
         [train_df, validation_df],

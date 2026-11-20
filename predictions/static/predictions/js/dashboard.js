@@ -72,6 +72,7 @@ async function loadPlayer(playerId) {
         renderRatingChart(data.rating_trend);
         renderAdrChart(data.rating_trend);
         renderMapTable(data.map_performance);
+        renderPlayerIntelligence(data.intelligence);
 
         $("comparePlayer1").value = playerId;
 
@@ -489,3 +490,47 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+function renderPlayerIntelligence(intelligence) {
+    if (!intelligence) return;
+
+    const trendElement = $("intelligenceTrend");
+    const descriptionElement = $("intelligenceTrendDescription");
+
+    const trendLabels = {
+        improving: "Improving",
+        declining: "Declining",
+        stable: "Stable",
+        insufficient_data: "Insufficient Data",
+    };
+
+    const trendDescriptions = {
+        improving: "Your recent rating is higher than your previous performance.",
+        declining: "Your recent rating is lower than your previous performance.",
+        stable: "Your performance has remained relatively consistent.",
+        insufficient_data: "More match data is needed to evaluate your performance trend.",
+    };
+
+    trendElement.textContent =
+        trendLabels[intelligence.trend] || "Insufficient Data";
+
+    descriptionElement.textContent =
+        trendDescriptions[intelligence.trend] || trendDescriptions.insufficient_data;
+
+    $("intelligenceRecentRating").textContent =
+        intelligence.recent_avg_rating ?? "--";
+
+    $("intelligencePreviousRating").textContent =
+        intelligence.previous_avg_rating ?? "--";
+
+    $("intelligenceStdDev").textContent =
+        intelligence.rating_stddev !== null &&
+        intelligence.rating_stddev !== undefined
+            ? Number(intelligence.rating_stddev).toFixed(3)
+            : "--";
+
+    $("intelligenceSampleMessage").textContent =
+        intelligence.sample_sufficient
+            ? "Available match history is sufficient for basic analysis."
+            : "At least 10 maps are recommended for more reliable analysis.";
+}

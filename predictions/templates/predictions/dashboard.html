@@ -5,13 +5,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>GameBehavior Intelligence | Dashboard</title>
+    <link
+    rel="icon"
+    type="image/png"
+    href="{% static 'predictions/images/favicon.png' %}"
+>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'predictions/css/dashboard.css' %}">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="{% static 'predictions/js/dashboard.js' %}"></script>
 </head>
@@ -19,84 +27,137 @@
 <body>
 <div class="app">
 
+    <!-- SIDEBAR -->
     <aside class="sidebar">
+
         <div class="brand">
-            <div class="brand-icon">G</div>
-            <div>
-                <h2>GAMEBEHAVIOR</h2>
-                <span>INTELLIGENCE</span>
-            </div>
-        </div>
+    <img
+        src="{% static 'predictions/images/gbi-app-icon.png' %}"
+        alt="GameBehavior Intelligence Logo"
+        class="brand-logo"
+    >
+
+    <div class="brand-text">
+        <h2>GAMEBEHAVIOR</h2>
+        <span>INTELLIGENCE</span>
+    </div>
+</div>
 
         <div class="side-label">WORKSPACE</div>
 
         <nav class="navigation">
+
             <a href="#overview" class="nav-item active">
                 <span>◈</span> Overview
             </a>
+
             <a href="#performance" class="nav-item">
-                <span>▥</span> Performance
+                <span>◧</span> Performance
             </a>
+
             <a href="#maps" class="nav-item">
                 <span>⌖</span> Map Analysis
             </a>
+
+            <a href="#intelligence" class="nav-item">
+                <span>✧</span> Player Intelligence
+            </a>
+
             <a href="#comparison" class="nav-item">
                 <span>⇄</span> Player Comparison
             </a>
+
             <a href="#prediction" class="nav-item">
                 <span>⌁</span> ML Prediction
             </a>
+
+            <a href="#about" class="nav-item">
+                <span>◎</span> About Me
+            </a>
+
         </nav>
 
         <div class="sidebar-bottom">
+
             <div class="system-status">
                 <span class="status-dot"></span>
+
                 <div>
                     <strong>System Online</strong>
                     <small>All services operational</small>
                 </div>
             </div>
+
             <div class="sidebar-footer">
                 GAMEBEHAVIOR INTELLIGENCE<br>
                 <span>PLAYER ANALYTICS PLATFORM</span>
             </div>
+
         </div>
+
     </aside>
 
+
+    <!-- MAIN CONTENT -->
     <main class="main">
 
+        <!-- TOPBAR -->
         <header class="topbar">
+
             <div>
                 <div class="breadcrumb">WORKSPACE / DASHBOARD</div>
                 <h1>Player Analytics</h1>
             </div>
 
             <div class="topbar-right">
+
                 <span class="live-indicator">
-                    <span class="status-dot"></span> LIVE DATA
+                    <span class="status-dot"></span>
+                    LIVE DATA
                 </span>
+
                 <div class="avatar">GB</div>
+
             </div>
+
         </header>
 
+
+        <!-- OVERVIEW -->
         <section class="welcome-section" id="overview">
+
             <div>
                 <div class="eyebrow">COUNTER-STRIKE 2 ANALYTICS</div>
+
                 <h2>Performance Intelligence</h2>
-                <p>Analyze player behavior, discover patterns and predict future performance.</p>
+
+                <p>
+                    Analyze player behavior, discover patterns
+                    and predict future performance.
+                </p>
             </div>
 
             <div class="player-selector">
+
                 <label for="playerSelect">SELECT PLAYER</label>
+
                 <select id="playerSelect">
                     <option value="">Choose a player</option>
+
                     {% for player in players %}
-                    <option value="{{ player.id }}">{{ player.username }}</option>
+                    <option value="{{ player.id }}">
+                        {{ player.username }}
+                    </option>
                     {% endfor %}
+
                 </select>
+
             </div>
+
         </section>
 
+
+        <!-- STATISTICS -->
         <section class="stats-grid" id="statsGrid">
 
             <div class="stat-card">
@@ -104,98 +165,128 @@
                     <span>AVERAGE RATING</span>
                     <span class="stat-icon purple">◈</span>
                 </div>
+
                 <div class="stat-value" id="avgRating">--</div>
                 <div class="stat-description">Overall player rating</div>
             </div>
+
 
             <div class="stat-card">
                 <div class="stat-top">
                     <span>AVERAGE ADR</span>
                     <span class="stat-icon blue">⌁</span>
                 </div>
+
                 <div class="stat-value" id="avgAdr">--</div>
                 <div class="stat-description">Average damage per round</div>
             </div>
+
 
             <div class="stat-card">
                 <div class="stat-top">
                     <span>AVERAGE KAST</span>
                     <span class="stat-icon green">◉</span>
                 </div>
+
                 <div class="stat-value" id="avgKast">--</div>
                 <div class="stat-description">Kill, Assist, Survive, Trade</div>
             </div>
+
 
             <div class="stat-card">
                 <div class="stat-top">
                     <span>TOTAL KILLS</span>
                     <span class="stat-icon orange">⚔</span>
                 </div>
+
                 <div class="stat-value" id="totalKills">--</div>
                 <div class="stat-description">Combined CT and T sides</div>
             </div>
+
 
             <div class="stat-card">
                 <div class="stat-top">
                     <span>TOTAL MAPS</span>
                     <span class="stat-icon cyan">▦</span>
                 </div>
+
                 <div class="stat-value" id="totalMaps">--</div>
                 <div class="stat-description">Maps played</div>
             </div>
+
 
             <div class="stat-card">
                 <div class="stat-top">
                     <span>AVERAGE IMPACT</span>
                     <span class="stat-icon pink">✧</span>
                 </div>
+
                 <div class="stat-value" id="avgImpact">--</div>
                 <div class="stat-description">Player impact rating</div>
             </div>
 
         </section>
 
+
+        <!-- PERFORMANCE CHARTS -->
         <section class="content-grid" id="performance">
 
             <div class="panel chart-panel large-panel">
+
                 <div class="panel-header">
                     <div>
                         <h3>Performance Trend</h3>
                         <p>Player rating across recent maps</p>
                     </div>
+
                     <span class="panel-tag">RATING</span>
                 </div>
+
                 <div class="chart-container">
                     <canvas id="ratingChart"></canvas>
                 </div>
+
             </div>
 
+
             <div class="panel chart-panel">
+
                 <div class="panel-header">
                     <div>
                         <h3>ADR Analysis</h3>
                         <p>Damage per round trend</p>
                     </div>
+
                     <span class="panel-tag blue-tag">ADR</span>
                 </div>
+
                 <div class="chart-container">
                     <canvas id="adrChart"></canvas>
                 </div>
+
             </div>
 
         </section>
 
+
+        <!-- MAP PERFORMANCE -->
         <section class="panel maps-panel" id="maps">
+
             <div class="panel-header">
+
                 <div>
                     <h3>Map Performance</h3>
                     <p>Player performance across different maps</p>
                 </div>
+
                 <span class="panel-tag">MAP STATISTICS</span>
+
             </div>
 
             <div class="table-wrapper">
+
                 <table>
+
                     <thead>
                         <tr>
                             <th>MAP</th>
@@ -205,94 +296,249 @@
                             <th>AVG IMPACT</th>
                         </tr>
                     </thead>
+
                     <tbody id="mapTable">
+
                         <tr>
-                            <td colspan="5" class="empty-cell">Select a player to load map statistics.</td>
+                            <td colspan="5" class="empty-cell">
+                                Select a player to load map statistics.
+                            </td>
                         </tr>
+
                     </tbody>
+
                 </table>
+
             </div>
+
         </section>
 
-        <section class="panel comparison-panel" id="comparison">
+
+        <!-- PLAYER INTELLIGENCE -->
+        <section class="panel intelligence-panel" id="intelligence">
+
             <div class="panel-header">
+
                 <div>
-                    <h3>Player Comparison</h3>
-                    <p>Compare performance metrics between two players</p>
+                    <h3>Player Intelligence</h3>
+
+                    <p>
+                        Performance trends and consistency analysis
+                    </p>
                 </div>
-                <span class="panel-tag">HEAD TO HEAD</span>
+
+                <span class="panel-tag">PERFORMANCE INSIGHTS</span>
+
             </div>
 
-            <div class="comparison-controls">
-                <div class="input-group">
-                    <label for="comparePlayer1">PLAYER ONE</label>
-                    <select id="comparePlayer1">
-                        <option value="">Choose player</option>
-                        {% for player in players %}
-                        <option value="{{ player.id }}">{{ player.username }}</option>
-                        {% endfor %}
-                    </select>
+
+            <div class="intelligence-grid">
+
+                <div class="intelligence-card">
+
+                    <span class="intelligence-label">
+                        PERFORMANCE TREND
+                    </span>
+
+                    <strong id="intelligenceTrend">--</strong>
+
+                    <p id="intelligenceTrendDescription">
+                        Select a player to analyze performance.
+                    </p>
+
                 </div>
+
+
+                <div class="intelligence-card">
+
+                    <span class="intelligence-label">
+                        RECENT AVG RATING
+                    </span>
+
+                    <strong id="intelligenceRecentRating">--</strong>
+
+                    <p>
+                        Average rating across the latest 5 maps
+                    </p>
+
+                </div>
+
+
+                <div class="intelligence-card">
+
+                    <span class="intelligence-label">
+                        PREVIOUS AVG RATING
+                    </span>
+
+                    <strong id="intelligencePreviousRating">--</strong>
+
+                    <p>
+                        Average rating across the previous 5 maps
+                    </p>
+
+                </div>
+
+
+                <div class="intelligence-card">
+
+                    <span class="intelligence-label">
+                        RATING VARIABILITY
+                    </span>
+
+                    <strong id="intelligenceStdDev">--</strong>
+
+                    <p>
+                        Standard deviation across all maps
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <p id="intelligenceSampleMessage" class="intelligence-message">
+                Player intelligence data will appear here.
+            </p>
+
+        </section>
+
+
+        <!-- PLAYER COMPARISON -->
+        <section class="panel comparison-panel" id="comparison">
+
+            <div class="panel-header">
+
+                <div>
+                    <h3>Player Comparison</h3>
+
+                    <p>
+                        Compare performance metrics between two players
+                    </p>
+                </div>
+
+                <span class="panel-tag">HEAD TO HEAD</span>
+
+            </div>
+
+
+            <div class="comparison-controls">
+
+                <div class="input-group">
+
+                    <label for="comparePlayer1">PLAYER ONE</label>
+
+                    <select id="comparePlayer1">
+
+                        <option value="">Choose player</option>
+
+                        {% for player in players %}
+                        <option value="{{ player.id }}">
+                            {{ player.username }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
 
                 <div class="versus">VS</div>
 
+
                 <div class="input-group">
+
                     <label for="comparePlayer2">PLAYER TWO</label>
+
                     <select id="comparePlayer2">
+
                         <option value="">Choose player</option>
+
                         {% for player in players %}
-                        <option value="{{ player.id }}">{{ player.username }}</option>
+                        <option value="{{ player.id }}">
+                            {{ player.username }}
+                        </option>
                         {% endfor %}
+
                     </select>
+
                 </div>
 
-                <button id="compareButton" class="primary-button">Compare Players</button>
+
+                <button id="compareButton" class="primary-button">
+                    Compare Players
+                </button>
+
             </div>
+
 
             <div id="comparisonResult" class="comparison-result">
                 Select two players to compare their statistics.
             </div>
 
-            
-<div class="comparison-charts">
 
-    <div class="comparison-chart-card">
-        <h4>Performance Metrics</h4>
-        <p>Rating and Impact comparison</p>
-        <div class="comparison-chart-container">
-            <canvas id="comparisonPerformanceChart"></canvas>
-        </div>
-    </div>
+            <div class="comparison-charts">
 
-    <div class="comparison-chart-card">
-        <h4>Combat Metrics</h4>
-        <p>ADR and KAST comparison</p>
-        <div class="comparison-chart-container">
-            <canvas id="comparisonCombatChart"></canvas>
-        </div>
-    </div>
+                <div class="comparison-chart-card">
 
-</div>
+                    <h4>Performance Metrics</h4>
+                    <p>Rating and Impact comparison</p>
 
-<div id="comparisonInsights" class="comparison-insights">
-    Select two players to generate statistical insights.
-</div>
+                    <div class="comparison-chart-container">
+                        <canvas id="comparisonPerformanceChart"></canvas>
+                    </div>
+
+                </div>
+
+
+                <div class="comparison-chart-card">
+
+                    <h4>Combat Metrics</h4>
+                    <p>ADR and KAST comparison</p>
+
+                    <div class="comparison-chart-container">
+                        <canvas id="comparisonCombatChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div id="comparisonInsights" class="comparison-insights">
+                Select two players to generate statistical insights.
+            </div>
 
         </section>
 
+
+        <!-- MACHINE LEARNING PREDICTION -->
         <section class="panel prediction-panel" id="prediction">
+
             <div class="panel-header">
+
                 <div>
                     <h3>Machine Learning Prediction</h3>
-                    <p>Predict player rating on a selected map</p>
+
+                    <p>
+                        Predict player rating on a selected map
+                    </p>
                 </div>
-                <span class="panel-tag purple-tag">RANDOM FOREST ML</span>
+
+                <span class="panel-tag purple-tag">
+                    RANDOM FOREST ML
+                </span>
+
             </div>
 
+
             <div class="prediction-controls">
+
                 <div class="input-group">
+
                     <label for="predictionMap">TARGET MAP</label>
+
                     <select id="predictionMap">
+
                         <option value="de_mirage">Mirage</option>
                         <option value="de_dust2">Dust 2</option>
                         <option value="de_inferno">Inferno</option>
@@ -300,29 +546,198 @@
                         <option value="de_ancient">Ancient</option>
                         <option value="de_anubis">Anubis</option>
                         <option value="de_overpass">Overpass</option>
+
                     </select>
+
                 </div>
+
 
                 <button id="predictButton" class="primary-button prediction-button">
                     Generate Prediction
                 </button>
+
             </div>
+
 
             <div id="predictionResult" class="prediction-result">
+
                 <div class="prediction-placeholder">
+
                     <div class="prediction-symbol">⌁</div>
+
                     <strong>AI Prediction Engine</strong>
-                    <span>Select a player and map to generate a prediction.</span>
+
+                    <span>
+                        Select a player and map to generate a prediction.
+                    </span>
+
                 </div>
+
             </div>
+
         </section>
 
+
+        <!-- ABOUT ME -->
+        <section class="panel about-panel" id="about">
+
+            <div class="panel-header">
+
+                <div>
+                    <h3>About Me</h3>
+                    <p>The developer behind GameBehavior Intelligence</p>
+                </div>
+
+                <span class="panel-tag">DEVELOPER PROFILE</span>
+
+            </div>
+
+
+            <div class="about-content">
+
+                <!-- PROFILE IMAGE -->
+                <div class="about-image-wrapper">
+
+                    <img
+                        src="{% static 'predictions/images/profile.jpg' %}"
+                        alt="Parsa Mirmohammadzadeh"
+                        class="about-profile-image"
+                    >
+
+                    <div class="about-image-caption">
+                        DEVELOPER
+                    </div>
+
+                </div>
+
+
+                <!-- PERSONAL INFORMATION -->
+                <div class="about-information">
+
+                    <div class="about-eyebrow">
+                        PYTHON DEVELOPER | AI & MACHINE LEARNING
+                    </div>
+
+                    <h2>Parsa Mirmohammadzadeh</h2>
+
+                    <p class="about-description">
+                        Hello! I'm Parsa Mirmohammadzadeh, a university
+                        student interested in Python development,
+                        artificial intelligence and machine learning.
+
+                        I enjoy building practical software projects,
+                        exploring data and developing intelligent systems.
+                    </p>
+
+
+                    <div class="about-details">
+
+                        <div class="about-detail">
+                            <span>EDUCATION</span>
+                            <strong>University of Bandar Anzali</strong>
+                        </div>
+
+                        <div class="about-detail">
+                            <span>FIELD OF INTEREST</span>
+                            <strong>Python, AI & Machine Learning</strong>
+                        </div>
+
+                        <div class="about-detail">
+                            <span>MAIN PROJECT</span>
+                            <strong>GameBehavior Intelligence</strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONTACT LINKS -->
+                    
+<div class="about-socials">
+
+    <a
+        href="mailto:mirparsa896@gmail.com"
+        class="about-social-link"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z"/>
+        </svg>
+        Email
+    </a>
+
+    <a
+        href="https://instagram.com/parsamirmohmadzade"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="about-social-link"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.5-3a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+        </svg>
+        Instagram
+    </a>
+
+    <a
+        href="https://github.com/requiem1386"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="about-social-link"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.08c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.24-1.62-1.24-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 1.7 2.62 1.21 3.26.92.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.06 1.14a10.6 10.6 0 0 1 5.57 0c2.12-1.44 3.05-1.14 3.05-1.14.61 1.54.23 2.68.12 2.96.71.78 1.14 1.78 1.14 3 0 4.29-2.61 5.23-5.1 5.51.4.35.76 1.02.76 2.06v3.07c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/>
+        </svg>
+        GitHub
+    </a>
+
+</div>
+
+                    
+
+            <!-- PROJECT INTRODUCTION -->
+            <div class="about-project">
+
+                <div class="about-project-label">
+                    FEATURED PROJECT
+                </div>
+
+                <h3>GameBehavior Intelligence</h3>
+
+                <p>
+                    An AI-powered Counter-Strike 2 player analytics
+                    platform built with Django and Machine Learning.
+
+                    The system processes match statistics, analyzes
+                    player performance, compares competitors and
+                    generates rating predictions using a trained
+                    Random Forest model.
+                </p>
+
+                <a
+                    href="https://github.com/requiem1386/GameBehavior-Intelligence"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="about-project-link"
+                >
+                    Explore Project on GitHub →
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
         <footer class="footer">
+
             <span>GAMEBEHAVIOR INTELLIGENCE</span>
-            <span>POWERED BY DJANGO & MACHINE LEARNING</span>
+
+            <span>
+                DEVELOPED BY Parsa Mirmohmadzade
+            </span>
+
         </footer>
 
     </main>
+
 </div>
 </body>
 </html>

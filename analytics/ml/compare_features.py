@@ -1,3 +1,8 @@
+import os
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
 
 import numpy as np
 import pandas as pd
@@ -13,7 +18,6 @@ from analytics.ml.dataset import (
     build_training_dataset,
     FEATURES,
 )
-
 
 def evaluate(y_true, predictions):
     return {

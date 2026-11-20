@@ -1,7 +1,7 @@
 
 import json
 from django.shortcuts import render
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count, Sum, StdDev
 from matches.models import PlayerMapStats
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
@@ -148,6 +148,39 @@ def player_overview_view(request, player_id):
             "impact": stat.impact,
         })
 
+    recent_values = [item["rating"] for item in rating_trend if item["rating"] is not None]
+
+    intelligence = {
+        "sample_sufficient": summary["total_maps"] >= 10,
+        "rating_stddev": stats.aggregate(
+            rating_stddev=StdDev("rating")
+        )["rating_stddev"],
+        "trend": "insufficient_data",
+        "recent_avg_rating": None,
+        "previous_avg_rating": None,
+        "rating_change": None,
+    }
+
+    if len(recent_values) >= 10:
+        previous_values = recent_values[:5]
+        latest_values = recent_values[-5:]
+
+        previous_avg = sum(previous_values) / len(previous_values)
+        latest_avg = sum(latest_values) / len(latest_values)
+        change = latest_avg - previous_avg
+
+        intelligence.update({
+            "previous_avg_rating": round(previous_avg, 3),
+            "recent_avg_rating": round(latest_avg, 3),
+            "rating_change": round(change, 3),
+            "trend": (
+                "improving" if change > 0.03
+                else "declining" if change < -0.03
+                else "stable"
+            ),
+        })
+
+
     return JsonResponse({
         "success": True,
 
@@ -165,7 +198,9 @@ def player_overview_view(request, player_id):
         "map_performance": map_performance,
 
         "rating_trend": rating_trend,
+        "intelligence": intelligence,
     })
+
 
 
 @require_GET
